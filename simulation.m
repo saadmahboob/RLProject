@@ -35,40 +35,76 @@ discountInfinite = discountInfinite.^[1:niter];
 initialState = [1,1,1];
 niter = 75000;
 [Q,BufferQL,HoldingQL,OverflowQL,PowerQL,CostQL,MuQL] = QLearning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions, initialState, RequiredPower,OverflowCost,BufferCost,HoldingCost,delayConstraint,niter,dynamics_s,gamma);
-InfiniteP = PowerQL .* discountInfinite;
-InfiniteB = BufferQL .* discountInfinite;
-sum(InfiniteP)
-sum(InfiniteB)
+figure()
+plot(CMA(BufferQL),'r','LineWidth',1);
+title('Cumulative average buffer cost');
+figure()
+plot(CMA(HoldingQL),'r','LineWidth',1);
+title('Cumulative average holding cost')
+figure()
+plot(CMA(OverflowQL),'r','LineWidth',1);
+title('Cumulative average overflow cost');
+figure()
+plot(CMA(PowerQL),'r','LineWidth',1);
+title('Cumulative average power cost');
+figure()
+plot(CMA(CostQL),'r','LineWidth',1);
+title('Cumulative average cost');
 
 %% Conventional Q learning Average
 initialState = [1,1,1];
 niter = 75000;
-naverage = 500;
+naverage = 1000;
 Buffer=zeros(niter,naverage);
 Holding=zeros(niter,naverage);
 Overflow=zeros(niter,naverage);
 Power =zeros(niter,naverage);
 for n=1:naverage
+    fprintf('n: %d \n',n);
     [Q,BufferSeq,HoldingSeq,OverflowSeq,PowerSeq,CostSeq,MuSeq] = QLearning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions, initialState, RequiredPower,OverflowCost,BufferCost,HoldingCost,delayConstraint,niter,dynamics_s,gamma);
     Buffer(:,n) = BufferSeq;
     Holding(:,n) = HoldingSeq;
     Overflow(:,n) = OverflowSeq;
     Power(:,n) = PowerSeq;
 end
-BufferAverage = mean(Buffer,2);
-PowerAverage = mean(Power,2);
-HoldingAverage = mean(Holding,2);
-OverflowAverage = mean(Overflow,2);
+
 
 %% PDS learning average
 initialState = [1,1,1];
 niter = 75000;
 [V_PDS, V, BufferCostPDS, requiredPower, holding, overflow, Mu, Cost] = PDS_learning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions,dynamics_l,dynamics_h,dynamics_x, ck, cu, RequiredPower, BufferCost, HoldingCost, OverflowCost,mu,gamma,delayConstraint,mu_max,niter,initialState,dynamics_f,B,M,eta);
-InfiniteP_PDS = requiredPower .* discountInfinite;
-InfiniteB_PDS = BufferCostPDS .* discountInfinite;
-sum(InfiniteP_PDS)
-sum(InfiniteB_PDS)
-
+figure()
+plot(CMA(BufferCostPDS),'b','LineWidth',1);
+hold on
+plot(CMA(BufferQL),'r','LineWidth',1);
+legend('PDS learning','Q learning');
+title('Cumulative average buffer cost');
+figure()
+plot(CMA(requiredPower),'b','LineWidth',1);
+hold on
+plot(CMA(PowerQL),'r','LineWidth',1);
+legend('PDS learning','Q learning');
+title('Cumulative average power cost');
+figure()
+plot(CMA(holding),'b','LineWidth',1);
+hold on
+plot(CMA(HoldingQL),'r','LineWidth',1);
+legend('PDS learning','Q learning');
+title('Cumulative average holding cost');
+figure()
+plot(CMA(overflow),'b','LineWidth',1);
+hold on
+plot(CMA(OverflowQL),'r','LineWidth',1);
+legend('PDS learning','Q learning');
+title('Cumulative average overflow cost');
+figure()
+plot(CMA(Mu),'b','LineWidth',1);
+title('Cumulative average lagrange multiplier');
+figure()
+plot(CMA(Cost),'b','LineWidth',1);
+hold on
+plot(CMA(CostQL),'r','LineWidth',1);
+title('Cumulative average cost');
 
 
 

@@ -10,9 +10,10 @@ function [dynamics] = arrival_MDP(M, arrivalRate)
 tic;
 dynamics = zeros(M+1,1);
 for l=1:M
-    dynamics(l) = ((arrivalRate^(l-1))*exp(-arrivalRate))/factorial(l-1);
+    dynamics(l) = (l-1)*log(arrivalRate) - arrivalRate - sum(log(1:(l-1)));
 end
-dynamics(M+1) = 1 - sum(dynamics(1:(end-1)));
+dynamics(M+1) = log(1 - sum(exp(dynamics(1:(end-1)))));
+dynamics = exp(dynamics);
 fprintf('Arrival MDP ............ %d s\n',toc);
 if(sum(dynamics) ~= 1)
     fprintf('ERROR in arrival probability: distribution should sum to 1');

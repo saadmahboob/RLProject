@@ -34,6 +34,10 @@ RequiredPower = reshape(RequiredPower,[NumStates,NumActions]);
 for t=1:niter
     % Pick an action
     [~,indAction] = min(Q(currentState,:));
+    if(rand() > 0.9)
+        greedy = randperm(NumActions);
+        indAction = greedy(1);
+    end
     % Next state
     NextState = simu_s(dynamics_s,currentState,indAction);
     % Observe costs
@@ -43,14 +47,6 @@ for t=1:niter
     currentHoldingCost = HoldingCost(currentState,indAction);
     currentOverflowCost = OverflowCost(currentState,indAction);
     currentRequiredPower = RequiredPower(currentState,indAction);
-%     currentBufferCost = BufferCost(currentIndBuffer,currentIndChannel,currentIndCard,...
-%                             currentBEP,currentDPM,currentZ);
-%     currentHoldingCost = HoldingCost(currentIndBuffer,currentIndChannel,currentIndCard,...
-%                             currentBEP,currentDPM,currentZ);
-%     currentOverflowCost = OverflowCost(currentIndBuffer,currentIndChannel,currentIndCard,...
-%                             currentBEP,currentDPM,currentZ);
-%     currentRequiredPower = RequiredPower(currentIndBuffer,currentIndChannel,currentIndCard,...
-%                             currentBEP,currentDPM,currentZ);
     currentCost = currentRequiredPower + mu*currentBufferCost;
     
     BufferSeq(t) = currentBufferCost;

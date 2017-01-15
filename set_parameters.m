@@ -33,8 +33,8 @@ NumberStates = length(bufferStates)*length(channelStates)*length(cardStates);  %
 NumberActions = length(BEPActions)*length(cardActions)*length(throughputActions); % Number of actions of the MDP
 
 % Packet arrival parameters
-arrivalRate = 9;                      % packets/time slot, Average number of packets arrival
-M = B;                                % Maximum number of arrivals
+arrivalRate = 200;                      % packets/time slot, Average number of packets arrival
+M = 220;                                % Maximum number of arrivals
 
 % General parameters
 gamma = 0.98;

@@ -45,7 +45,7 @@ function [V_PDS, V, BufferCost, requiredPower, holding, overflow, Mu, Cost] = PD
 %   Cost:                   sequence of cost 
 %                                       c(s,a) = rau(s,a) + mu*g(s,a)
 
-%disp('Start PDS learning...');
+disp('Start PDS learning...');
 tic;
 % Initialization
 NumStates = length(bufferStates)*length(channelStates)*length(cardStates);
@@ -66,7 +66,6 @@ currentIndCard = initialState(3);
 currentState = state(currentIndBuffer, currentIndChannel, currentIndCard);
 
 for t=1:niter
-    
     % Take greedy action (BEP,y,z)
     ckSum = reshape(ck,[NumStates, NumActions]);
     sum_PDS = zeros(1,NumActions);
@@ -107,20 +106,21 @@ for t=1:niter
             for k=1:length(throughputActions)
                 ThisAction = action(i,j,k);
                 expectV = known_expectation(state, NextStateIndCard, j, NextStateIndBuffer, bufferStates, i, NextStateIndChannel, k, V_PDS, cardStates, throughputActions, dynamics_x, dynamics_f);
-                sum_PDS_next = ckSum(NextState,ThisAction) + expectV;
+                sum_PDS_next(ThisAction) = ckSum(NextState,ThisAction) + expectV;
             end
         end
     end
     V(NextState) = min(sum_PDS_next);
     
     % Update the PDS value function
-    V_PDS(PDSState) = (1 - (1/t))*V_PDS(PDSState) + (1/t)*(PDScost + gamma*V(NextState));
+    V_PDS(PDSState) = (1 - (1/(t+1)))*V_PDS(PDSState) + (1/(t+1))*(PDScost + gamma*V(NextState));
     
     % Update costs
-    currentBufferCost = g(currentIndBuffer,currentIndCard,indBEP,indCardAction,indZ);
-    currentHoldingCost = holding_cost(currentIndBuffer,currentIndCard,indBEP,indCardAction,indZ);
-    currentOverflowCost = overflow_cost(currentIndBuffer,currentIndCard,indBEP,indCardAction,indZ);
-    currentRequiredPower = rau(currentIndChannel,currentIndCard,indBEP,indCardAction,indZ);
+    %fprintf('t = %d \n currentIndBuffer %d (%d), currentIndChannel %d (%d), currentIndCard %d (%d), indBEP %d (%d), indCardAction %d (%d), indZ %d (%d) \n',[t,currentIndBuffer,size(g,1),currentIndChannel,size(g,2),currentIndCard,size(g,3),indBEP,size(g,4),indCardAction,size(g,5),indZ, size(g,6)]);
+    currentBufferCost = g(currentIndBuffer,currentIndChannel,currentIndCard,indBEP,indCardAction,indZ);
+    currentHoldingCost = holding_cost(currentIndBuffer,currentIndChannel,currentIndCard,indBEP,indCardAction,indZ);
+    currentOverflowCost = overflow_cost(currentIndBuffer,currentIndChannel,currentIndCard,indBEP,indCardAction,indZ);
+    currentRequiredPower = rau(currentIndBuffer,currentIndChannel,currentIndCard,indBEP,indCardAction,indZ);
     currentCost = currentRequiredPower + mu*currentBufferCost;
     BufferCost(t) = currentBufferCost;
     requiredPower(t) = currentRequiredPower;
