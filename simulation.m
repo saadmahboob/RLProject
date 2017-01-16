@@ -30,6 +30,9 @@ cu = unknown_cost(bufferStates,channelStates,cardStates,dynamics_l,mu,eta,B);
 niter = 75000;
 discountInfinite = gamma*ones(1,niter);
 discountInfinite = discountInfinite.^[1:niter];
+%V_PDS = initVPDS(bufferStates,channelStates,cardStates,B,NumStates,mu,eta,10,dynamics_x,dynamics_l,dynamics_f,state,action,gamma,ck);
+%save('V_PDS.mat','V_PDS');
+load V_PDS
 
 %% One run conventional Q Learning
 initialState = [1,1,1];
@@ -54,36 +57,69 @@ title('Cumulative average cost');
 %% Conventional Q learning Average
 initialState = [1,1,1];
 niter = 75000;
-naverage = 500;
-Buffer=zeros(niter,naverage);
-Holding=zeros(niter,naverage);
-Overflow=zeros(niter,naverage);
-Power =zeros(niter,naverage);
+naverage = 200;
+BufferQL=zeros(niter,naverage);
+HoldingQL=zeros(niter,naverage);
+OverflowQL=zeros(niter,naverage);
+PowerQL =zeros(niter,naverage);
+BufferPDS=zeros(niter,naverage);
+HoldingPDS=zeros(niter,naverage);
+OverflowPDS=zeros(niter,naverage);
+PowerPDS =zeros(niter,naverage);
 for n=1:naverage
     fprintf('n: %d \n',n);
     [Q,BufferSeq,HoldingSeq,OverflowSeq,PowerSeq,CostSeq,MuSeq] = QLearning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions, initialState, RequiredPower,OverflowCost,BufferCost,HoldingCost,delayConstraint,niter,dynamics_s,gamma);
-    Buffer(:,n) = BufferSeq;
-    Holding(:,n) = HoldingSeq;
-    Overflow(:,n) = OverflowSeq;
-    Power(:,n) = PowerSeq;
+    [V_PDS, V, BufferCostPDS, requiredPower, holding, overflow, Mu, Cost] = PDS_learning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions,dynamics_l,dynamics_h,dynamics_x, ck, cu, RequiredPower, BufferCost, HoldingCost, OverflowCost,mu,gamma,delayConstraint,mu_max,niter,initialState,dynamics_f,B,M,eta,V_PDS);
+    BufferQL(:,n) = BufferSeq;
+    HoldingQL(:,n) = HoldingSeq;
+    OverflowQL(:,n) = OverflowSeq;
+    PowerQL(:,n) = PowerSeq;
+    BufferPDS(:,n) = BufferCostPDS;
+    HoldingPDS(:,n) = holding;
+    OverflowPDS(:,n) = overflow;
+    PowerPDS(:,n) = requiredPower;
 end
-Buffer = mean(Buffer);
-Holding = mean(Holding);
-Overflow = mean(Overflow);
-Power = mean(Power);
+BufferQL = mean(BufferQL);
+HoldingQL = mean(HoldingQL);
+OverflowQL = mean(OverflowQL);
+PowerQL = mean(PowerQL);
+BufferPDS = mean(BufferPDS);
+HoldingPDS = mean(HoldingPDS);
+OverflowPDS = mean(OverflowPDS);
+PowerPDS = mean(PowerPDS);
 figure()
-plot(CMA(Power));
-title('Power');
-figure()
-plot(CMA(Buffer));
-title('Buffer');
+subplot(2,2,1)
+plot(CMA(BufferQL),'r');
+hold on
+plot(CMA(BufferPDS),'b');
+legend('QL','PDS');
+title('Buffer Cost');
 
+subplot(2,2,2)
+plot(CMA(HoldingQL),'r');
+hold on
+plot(CMA(HoldingPDS),'b');
+legend('QL','PDS');
+title('Holding Cost');
 
+subplot(2,2,3)
+plot(CMA(OverflowQL),'r');
+hold on
+plot(CMA(OverflowPDS),'b');
+legend('QL','PDS');
+title('Overflow Cost');
+
+subplot(2,2,4)
+plot(CMA(PowerQL),'r');
+hold on
+plot(CMA(PowerPDS),'b');
+legend('QL','PDS');
+title('Power cost');
 
 %% PDS learning average
 initialState = [1,1,1];
 niter = 75000;
-[V_PDS, V, BufferCostPDS, requiredPower, holding, overflow, Mu, Cost] = PDS_learning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions,dynamics_l,dynamics_h,dynamics_x, ck, cu, RequiredPower, BufferCost, HoldingCost, OverflowCost,mu,gamma,delayConstraint,mu_max,niter,initialState,dynamics_f,B,M,eta);
+[V_PDS, V, BufferCostPDS, requiredPower, holding, overflow, Mu, Cost] = PDS_learning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions,dynamics_l,dynamics_h,dynamics_x, ck, cu, RequiredPower, BufferCost, HoldingCost, OverflowCost,mu,gamma,delayConstraint,mu_max,niter,initialState,dynamics_f,B,M,eta,V_PDS);
 figure()
 plot(CMA(BufferCostPDS),'b','LineWidth',1);
 hold on

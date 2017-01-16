@@ -1,4 +1,4 @@
-function [V_PDS, V, BufferCost, requiredPower, holding, overflow, Mu, Cost] = PDS_learning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions,dynamics_l,dynamics_h,dynamics_x, ck, cu, rau, g, holding_cost, overflow_cost,mu,gamma,delayConstraint,mu_max,niter,initialState,dynamics_f,B,M,eta)
+function [V_PDS, V, BufferCost, requiredPower, holding, overflow, Mu, Cost] = PDS_learning(state,action,bufferStates,channelStates,cardStates,BEPActions,cardActions,throughputActions,dynamics_l,dynamics_h,dynamics_x, ck, cu, rau, g, holding_cost, overflow_cost,mu,gamma,delayConstraint,mu_max,niter,initialState,dynamics_f,B,M,eta,V_PDS)
 % Performs PDS learning on the MDP
 % Inputs
 %   state:                  matrix which returns the index of the state
@@ -51,7 +51,7 @@ tic;
 NumStates = length(bufferStates)*length(channelStates)*length(cardStates);
 NumActions = length(BEPActions)*length(cardActions)*length(throughputActions);
 V = zeros(1,NumStates);
-V_PDS = initVPDS(bufferStates,channelStates,cardStates,B,NumStates,mu,eta);
+%V_PDS = initVPDS(bufferStates,channelStates,cardStates,B,NumStates,mu,eta,1000,dynamics_x,dynamics_l,dynamics_f,state,action,gamma,ck);
 BufferCost = zeros(1,niter);
 requiredPower = zeros(1,niter);
 holding = zeros(1,niter);
@@ -137,7 +137,7 @@ for t=1:niter
     currentIndChannel = NextStateIndChannel;
     currentIndCard = NextStateIndCard;
 end
-fprintf('PDS Learning ....... %d s\n',toc);
+%fprintf('PDS Learning ....... %d s\n',toc);
 
 end
 
