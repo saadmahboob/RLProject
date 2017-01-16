@@ -11,7 +11,7 @@ function [V_PDS, V, BufferCost, requiredPower, holding, overflow, Mu, Cost] = PD
 %                                       [on, off]
 %   BEPActions:             possible values of BEP
 %   cardActions:            possible dynamic power management actions
-%                                       [s_on, s_off]
+%                                       [s_on, s_off]   
 %   throughputActions:      possible values for the throughput
 %   dynamics_b:             matrix of transition of the buffer states
 %   dynamics_h:             matrix of transition of the channel states
@@ -112,7 +112,7 @@ for t=1:niter
     end
     V(NextState) = min(sum_PDS_next);
     
-    % Update the PDS value function
+    % Update the PDS value function (Possible virtual experience upgrades)
     V_PDS(PDSState) = (1 - (1/(t+1)))*V_PDS(PDSState) + (1/(t+1))*(PDScost + gamma*V(NextState));
     
     % Update costs
@@ -129,7 +129,7 @@ for t=1:niter
     Cost(t) = currentCost;
     
     % Update the lagrange multiplier
-    mu = min(max(mu + (1/t)*(currentBufferCost - delayConstraint),0),mu_max);
+    mu = min(max(mu + (1/(t+1))*(currentBufferCost - delayConstraint),0),mu_max);
     Mu(t) = mu;
     
     % Update the state

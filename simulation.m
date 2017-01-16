@@ -54,7 +54,7 @@ title('Cumulative average cost');
 %% Conventional Q learning Average
 initialState = [1,1,1];
 niter = 75000;
-naverage = 1000;
+naverage = 500;
 Buffer=zeros(niter,naverage);
 Holding=zeros(niter,naverage);
 Overflow=zeros(niter,naverage);
@@ -67,6 +67,17 @@ for n=1:naverage
     Overflow(:,n) = OverflowSeq;
     Power(:,n) = PowerSeq;
 end
+Buffer = mean(Buffer);
+Holding = mean(Holding);
+Overflow = mean(Overflow);
+Power = mean(Power);
+figure()
+plot(CMA(Power));
+title('Power');
+figure()
+plot(CMA(Buffer));
+title('Buffer');
+
 
 
 %% PDS learning average

@@ -26,7 +26,7 @@ M = length(dynamics_l)-1;
 for i=1:length(bufferStates)
     arrivals = 0:M;
     b = bufferStates(i);
-    HoldingCost(i,:,:,:,:,:) = b/B;
+    HoldingCost(i,:,:,:,:,:) = b;
     OverflowCost(i,:,:,:,:,:) = eta * sum(dynamics_l'.* max((b+arrivals-B),0))/B;
     BufferCost(i,:,:,:,:,:) = HoldingCost(i,:,:,:,:,:) + OverflowCost(i,:,:,:,:,:);
 end
@@ -36,20 +36,30 @@ for i=1:length(bufferStates)
     for j=1:length(channelStates)
         for k=1:length(BEPActions)
             for l=1:length(throughputActions)
-                b=bufferStates(i);
-                h=channelStates(j);
-                BEP = BEPActions(k);
-                z = throughputActions(l);
-                goodput = [0:z]';
-                
-                HoldingCost(i,j,1,k,1,l) = sum(dynamics_f(goodput+1,k,l).*((max(b-goodput,0))/B));
+                HoldingCost(i,j,1,k,1,l) = 0;
                 OverflowCost(i,j,1,k,1,l) = 0;
-                
-                for arrival=0:M
-                    OverflowCost(i,j,1,k,1,l) = OverflowCost(i,j,1,k,1,l) + dynamics_l(arrival+1)*sum(dynamics_f(goodput+1,k,l).*(max(max(b-goodput,0) + arrival-B,0)/B))*eta;
+                for arrivals=0:M
+                    for f=0:throughputActions(l)
+                        HoldingCost(i,j,1,k,1,l) = HoldingCost(i,j,1,k,1,l) + dynamics_l(arrivals+1)*dynamics_f(f+1,k,l)*(b-f);
+                        OverflowCost(i,j,1,k,1,l) = OverflowCost(i,j,1,k,1,l) + dynamics_l(arrivals+1)*dynamics_f(f+1,k,l)*eta*max(b-f+arrivals-B,0);
+                    end
                 end
-                
-                BufferCost(i,j,1,k,1,l) = HoldingCost(i,j,1,k,1,l) + OverflowCost(i,j,1,k,1,l);
+                        
+                        
+%                 b=bufferStates(i);
+%                 h=channelStates(j);
+%                 BEP = BEPActions(k);
+%                 z = throughputActions(l);
+%                 goodput = [0:z]';
+%                 
+%                 HoldingCost(i,j,1,k,1,l) = sum(dynamics_f(goodput+1,k,l).*((max(b-goodput,0))/B));
+%                 OverflowCost(i,j,1,k,1,l) = 0;
+%                 
+%                 for arrival=0:M
+%                     OverflowCost(i,j,1,k,1,l) = OverflowCost(i,j,1,k,1,l) + dynamics_l(arrival+1)*sum(dynamics_f(goodput+1,k,l).*(max(max(b-goodput,0) + arrival-B,0)/B))*eta;
+%                 end
+%                 
+%                 BufferCost(i,j,1,k,1,l) = HoldingCost(i,j,1,k,1,l) + OverflowCost(i,j,1,k,1,l);
                 
             end
         end
