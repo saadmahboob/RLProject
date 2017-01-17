@@ -57,7 +57,7 @@ title('Cumulative average cost');
 %% Conventional Q learning Average
 initialState = [1,1,1];
 niter = 75000;
-naverage = 200;
+naverage = 100;
 BufferQL=zeros(niter,naverage);
 HoldingQL=zeros(niter,naverage);
 OverflowQL=zeros(niter,naverage);

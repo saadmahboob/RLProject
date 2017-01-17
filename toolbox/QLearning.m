@@ -30,6 +30,7 @@ BufferCost = reshape(BufferCost,[NumStates, NumActions]);
 HoldingCost = reshape(HoldingCost,[NumStates,NumActions]);
 OverflowCost = reshape(OverflowCost,[NumStates,NumActions]);
 RequiredPower = reshape(RequiredPower,[NumStates,NumActions]);
+alpha = ones(NumStates,NumActions);
 
 for t=1:niter
     % Pick an action
@@ -57,9 +58,10 @@ for t=1:niter
     % Reward
     reward = currentCost;
     % Update Q
-    Q(currentState,indAction) = Q(currentState,indAction) + (1/(t+1))*(reward + gamma*min(Q(NextState,:)) - Q(currentState,indAction));
+    Q(currentState,indAction) = Q(currentState,indAction) + (1/alpha(currentState,indAction))*(reward + gamma*min(Q(NextState,:)) - Q(currentState,indAction));
     % Update state
     currentState = NextState;
+    alpha(currentState,indAction) = alpha(currentState,indAction) + 1;
 end                   
 end
 

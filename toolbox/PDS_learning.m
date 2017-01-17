@@ -58,6 +58,8 @@ holding = zeros(1,niter);
 overflow = zeros(1,niter);
 Mu = zeros(1,niter);
 Cost = zeros(1,niter);
+alpha = ones(NumStates);
+beta = ones(NumStates);
 
 % Iterations
 currentIndBuffer = initialState(1);
@@ -113,8 +115,8 @@ for t=1:niter
     V(NextState) = min(sum_PDS_next);
     
     % Update the PDS value function (Possible virtual experience upgrades)
-    V_PDS(PDSState) = (1 - (1/(t+1)))*V_PDS(PDSState) + (1/(t+1))*(PDScost + gamma*V(NextState));
-    
+    V_PDS(PDSState) = (1 - (1/alpha(PDSState)))*V_PDS(PDSState) + (1/alpha(PDSState))*(PDScost + gamma*V(NextState));
+    alpha(PDSState) = alpha(PDSState) + 1;
     % Update costs
     %fprintf('t = %d \n currentIndBuffer %d (%d), currentIndChannel %d (%d), currentIndCard %d (%d), indBEP %d (%d), indCardAction %d (%d), indZ %d (%d) \n',[t,currentIndBuffer,size(g,1),currentIndChannel,size(g,2),currentIndCard,size(g,3),indBEP,size(g,4),indCardAction,size(g,5),indZ, size(g,6)]);
     currentBufferCost = g(currentIndBuffer,currentIndChannel,currentIndCard,indBEP,indCardAction,indZ);
@@ -129,7 +131,8 @@ for t=1:niter
     Cost(t) = currentCost;
     
     % Update the lagrange multiplier
-    mu = min(max(mu + (1/(t+1))*(currentBufferCost - delayConstraint),0),mu_max);
+    mu = min(max(mu + (1/beta(PDSState))*(currentBufferCost - delayConstraint),0),mu_max);
+    beta(PDSState) = beta(PDSState) + 1;
     Mu(t) = mu;
     
     % Update the state
