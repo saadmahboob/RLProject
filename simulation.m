@@ -54,10 +54,10 @@ figure()
 plot(CMA(CostQL),'r','LineWidth',1);
 title('Cumulative average cost');
 
-%% Conventional Q learning Average
+%% Mean Cumulative average Q Learning vs PDS learning
 initialState = [1,1,1];
 niter = 75000;
-naverage = 100;
+naverage = 1000;
 BufferQL=zeros(niter,naverage);
 HoldingQL=zeros(niter,naverage);
 OverflowQL=zeros(niter,naverage);
@@ -79,14 +79,14 @@ for n=1:naverage
     OverflowPDS(:,n) = overflow;
     PowerPDS(:,n) = requiredPower;
 end
-BufferQL = mean(BufferQL);
-HoldingQL = mean(HoldingQL);
-OverflowQL = mean(OverflowQL);
-PowerQL = mean(PowerQL);
-BufferPDS = mean(BufferPDS);
-HoldingPDS = mean(HoldingPDS);
-OverflowPDS = mean(OverflowPDS);
-PowerPDS = mean(PowerPDS);
+BufferQL = mean(BufferQL,2);
+HoldingQL = mean(HoldingQL,2);
+OverflowQL = mean(OverflowQL,2);
+PowerQL = mean(PowerQL,2);
+BufferPDS = mean(BufferPDS,2);
+HoldingPDS = mean(HoldingPDS,2);
+OverflowPDS = mean(OverflowPDS,2);
+PowerPDS = mean(PowerPDS,2);
 figure()
 subplot(2,2,1)
 plot(CMA(BufferQL),'r');

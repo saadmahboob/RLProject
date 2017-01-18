@@ -7,7 +7,7 @@ function cumulative_average = CMA(vec)
 
 count = 1:length(vec);
 vec = cumsum(vec);
-cumulative_average = vec ./ count;
+cumulative_average = vec(:) ./ count(:);
 
 
 end
